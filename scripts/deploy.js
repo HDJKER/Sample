@@ -31,8 +31,8 @@ const HAR_FILE_OUTPUT_PATH = `tester/harmony/${MODULE_NAME}/build/default/output
 // const UNSCOPED_NPM_PACKAGE_NAME = '@react-native-oh-tpl/react-native-permissions';
 
 const GITHUB_REPOS = 'react-native-oh-library';
-
 const GITHUB_OWNER = 'HDJKER';
+const BRANCH_NAME = 'temp'
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -88,9 +88,9 @@ function runDeployment() {
                 rl.close();
               }else{
                 // add 存入缓存区
-                // execSync(
-                //   `git checkout -b ${GITHUB_OWNER}-${version}`
-                // );
+                execSync(
+                  `git checkout -b ${BRANCH_NAME}`
+                );
                 execSync('git add -A');
                 // 输入commit信息
             rl.question(
@@ -99,11 +99,13 @@ perf:优化相关,提升性能、体验\ntest:测试相关,如添加测试用例
             (typeCont) => {
                 // 输入commit信息后进行提交并创建pr
                 CreatePr(typeCont, version);
+                execSync(
+                  `git checkout sig`
+                );
                 })
               }
             }
           );
-          
         }
       );
     }
@@ -166,7 +168,7 @@ function CreatePr(typeCont, version){
   // });
   // 创建pr请求
   const mergeRequestId = createMergeRequest(
-    `sig`,
+    `${BRANCH_NAME}`,
     `docs: a auto pr script test`
     // `release: ${UNSCOPED_NPM_PACKAGE_NAME}@${version}`
   );
@@ -217,6 +219,7 @@ async function createMergeRequest(sourceBranch, title) {
           head: `${GITHUB_OWNER}:${sourceBranch}`, // 确保这里的 GITHUB_OWNER 是实际的用户名
           base: 'main', // 假设 'main' 是目标分支
           body: 'pr 描述测试',
+          delete_branch_on_merge: true, // 合并后删除源分支
         }),
       }
     );
@@ -225,6 +228,7 @@ async function createMergeRequest(sourceBranch, title) {
       throw new Error(`Failed to create pull request: ${response.statusText} ${response.status} - ${errorMessage}`);
     }
     const responseData = await response.json();
+    console.log('responseData:',responseData)
     return responseData.number; // 获取pr对应id号
   } catch (error) {
     console.error('Error happens when create pull request:', error);
