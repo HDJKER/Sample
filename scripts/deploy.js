@@ -20,11 +20,9 @@ console.log(`GITHUB_TOKEN is ${GITHUB_TOKEN}`);
 // 文件夹名称
 const EXPECTED_EXECUTION_DIRECTORY_NAME =
   'Sample';
-// 远程仓库地址
-const GITHUB_URL = 'https://github.com/HDJKER/react-native-permissions'
 // const GITHUB_PROJECT_ID = 522;  // 内部统一ID标识?
 // 库名
-const MODULE_NAME = 'Sample';
+const MODULE_NAME = 'sample';
 // har包的导出地址
 const HAR_FILE_OUTPUT_PATH = `tester/harmony/${MODULE_NAME}/build/default/outputs/default/${MODULE_NAME}.har`;
 // 发npm的包名
@@ -32,7 +30,8 @@ const HAR_FILE_OUTPUT_PATH = `tester/harmony/${MODULE_NAME}/build/default/output
 
 const GITHUB_REPOS = 'react-native-oh-library';
 const GITHUB_OWNER = 'HDJKER';
-const BRANCH_NAME = 'temp'
+const BRANCH_NAME = 'temp';
+const TARGET_BRANCH = 'sig';
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout,
@@ -171,11 +170,11 @@ async function CreatePr(typeCont, version){
   // 创建pr请求
   const mergeRequestId = await createMergeRequest(
     `${BRANCH_NAME}`,
-    `docs: a auto pr script test`
+    `build: a auto pr script test`
     // `release: ${UNSCOPED_NPM_PACKAGE_NAME}@${version}`
   );
   console.log(`Please merge the following Merge Request:\n
-  https://github.com/${GITHUB_REPOS}/${MODULE_NAME}/pull/${mergeRequestId}`);
+  https://github.com/${GITHUB_OWNER}/${MODULE_NAME}/pull/${mergeRequestId}`);
   rl.close();
 }
 
@@ -196,7 +195,7 @@ function isRepositoryClean() {
     execSync('git rev-list HEAD...origin/sig --count', {
       encoding: 'utf-8',
     }).trim() === '0';
-    console.log(`${status} ${branch} ${isUpdated}`)
+    // console.log(`${status} ${branch} ${isUpdated}`)
   return !status && branch === 'sig' && isUpdated;
 }
 
@@ -219,7 +218,7 @@ async function createMergeRequest(sourceBranch, title) {
         body: JSON.stringify({
           title: title,
           head: `${GITHUB_OWNER}:${sourceBranch}`, // 确保这里的 GITHUB_OWNER 是实际的用户名
-          base: 'main', // 假设 'main' 是目标分支
+          base: `${TARGET_BRANCH}`, 
           body: 'pr 描述测试',
           delete_branch_on_merge: true, // 合并后删除源分支
         }),
@@ -230,7 +229,6 @@ async function createMergeRequest(sourceBranch, title) {
       throw new Error(`Failed to create pull request: ${response.statusText} ${response.status} - ${errorMessage}`);
     }
     const responseData = await response.json();
-    console.log(`responseData.number:${responseData.number}\nresponseData type:${typeof(responseData.number)}`)
     return responseData.number; // 获取pr对应id号
   } catch (error) {
     console.error('Error happens when create pull request:', error);
