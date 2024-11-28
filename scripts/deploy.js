@@ -221,7 +221,7 @@ async function createMergeRequest(sourceBranch, title) {
           head: `${GITHUB_OWNER}:${sourceBranch}`, // 确保这里的 GITHUB_OWNER 是实际的用户名
           base: 'main', // 假设 'main' 是目标分支
           body: 'pr 描述测试',
-          delete_branch_on_merge: true, // 合并后删除源分支
+          // delete_branch_on_merge: true, // 合并后删除源分支
         }),
       }
     );
